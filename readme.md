@@ -1,0 +1,1 @@
+The AI Job Interview Coach is a web application designed to help job seekers improve their interview skills. It provides AI-driven mock interviews, personalized feedback, and resources to refine responses and build confidence.
