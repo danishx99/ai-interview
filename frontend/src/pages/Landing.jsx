@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
@@ -7,56 +6,126 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  BrainCircuit,
-  CheckCircle,
-  Clock,
-  Laptop,
-  Check,
-  Repeat,
-  Mic,
-} from "lucide-react";
+import { CheckCircle, Clock, Laptop, Check, Repeat, Mic } from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 
 import fullLogo from "@/assets/full-logo.png";
 import whiteLogo from "@/assets/mini-logo-white.png";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
+  // Create refs for each section
+  const heroRef = useRef(null);
+  const featuresRef = useRef(null);
+  const howRef = useRef(null);
+  const pricingRef = useRef(null);
+  const faqRef = useRef(null);
+
+  // Function to scroll to a specific section
+  const scrollToSection = (sectionRef) => {
+    sectionRef.current.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-purple-600 text-white">
-        <div className="flex items-center justify-center">
-          <img className="h-8 w-8 mr-2" src={whiteLogo} />
-          <span className="font-bold">NextGen Interviews</span>
+      <header className="sticky top-0 left-0 w-full z-50 px-4 lg:px-6 h-14 flex items-center bg-purple-600 text-white shadow-md bg-opacity-90">
+        <div
+          className="flex items-center justify-center cursor-pointer"
+          onClick={() => scrollToSection(heroRef)}
+        >
+          <img className="h-8 w-8 mr-2" src={whiteLogo} alt="Logo" />
+          <p className="font-bold max-sm:hidden mb-1">NextGen Interviews</p>
         </div>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <a
+        <nav className="ml-auto flex gap-4 sm:gap-6 max-sm:hidden">
+          <button
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#features"
+            onClick={() => scrollToSection(featuresRef)}
           >
             Features
-          </a>
-          <a
+          </button>
+          <button
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#how-it-works"
+            onClick={() => scrollToSection(howRef)}
           >
             How It Works
-          </a>
-          <a
+          </button>
+          <button
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#pricing"
+            onClick={() => scrollToSection(pricingRef)}
           >
             Pricing
-          </a>
+          </button>
+          <button
+            className="text-sm font-medium hover:underline underline-offset-4"
+            onClick={() => scrollToSection(faqRef)}
+          >
+            FAQ
+          </button>
         </nav>
+        <button
+          className="max-sm:block hidden ml-auto flex justify-center w-8 h-8  text-white rounded-full"
+          onClick={() => {
+            // toggle mobile nav
+            const mobileNav = document.querySelector(".mobile-nav");
+            mobileNav.classList.toggle("hidden");
+          }}
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+        <div className="mobile-nav hidden absolute top-14 right-4 bg-purple-400 text-white p-4 w-48">
+          <button
+            className="block text-sm font-medium hover:underline underline-offset-4"
+            onClick={() => scrollToSection(featuresRef)}
+          >
+            Features
+          </button>
+          <button
+            className="block text-sm font-medium hover:underline underline-offset-4"
+            onClick={() => scrollToSection(howRef)}
+          >
+            How It Works
+          </button>
+          <button
+            className="block text-sm font-medium hover:underline underline-offset-4"
+            onClick={() => scrollToSection(pricingRef)}
+          >
+            Pricing
+          </button>
+          <button
+            className="block text-sm font-medium hover:underline underline-offset-4"
+            onClick={() => scrollToSection(faqRef)}
+          >
+            FAQ
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-purple-100">
-          <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:gap-12 xl:grid-cols-[3fr_1fr]">
+        <section
+          ref={heroRef}
+          className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-purple-100"
+        >
+          <div className="w-full px-4 md:px-6">
+            <div className="flex flex-row max-md:flex-col justify-between items-center w-full">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-purple-800">
@@ -68,24 +137,27 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Button
+                    onClick={() => {
+                      navigate("/register");
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
                     Get Started
                   </Button>
                   <Button
                     variant="outline"
                     className="border-purple-600 text-purple-600 hover:bg-purple-100"
+                    onClick={() => {
+                      navigate("/#features");
+                    }}
                   >
                     Learn More
                   </Button>
                 </div>
               </div>
               <div className="mx-auto aspect-video overflow-hidden rounded-xlsm:w-full lg:order-last flex items-center justify-center">
-                <img
-                  src={fullLogo}
-                  alt=""
-                  className="max-w-full h-auto"
-                  style={{ maxWidth: "700px" }}
-                />
+                <img src={fullLogo} alt="Logo" className="w-full" />
               </div>
             </div>
           </div>
@@ -93,8 +165,9 @@ export default function LandingPage() {
 
         {/* Features Section */}
         <section
+          ref={featuresRef}
           id="features"
-          className="w-full py-12 md:py-24 lg:py-32 bg-white"
+          className="w-full py-12 md:py-20 lg:py-26 bg-white"
         >
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 text-purple-800">
@@ -177,6 +250,7 @@ export default function LandingPage() {
 
         {/* How It Works Section */}
         <section
+          ref={howRef}
           id="how-it-works"
           className="w-full py-12 md:py-24 lg:py-32 bg-purple-100"
         >
@@ -224,6 +298,7 @@ export default function LandingPage() {
 
         {/* Pricing Section */}
         <section
+          ref={pricingRef}
           id="pricing"
           className="w-full py-12 md:py-24 lg:py-32 bg-white"
         >
@@ -256,7 +331,12 @@ export default function LandingPage() {
                       <span>Access to common interview questions</span>
                     </li>
                   </ul>
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      navigate("/login");
+                    }}
+                  >
                     Get Started
                   </Button>
                 </CardContent>
@@ -289,7 +369,12 @@ export default function LandingPage() {
                       <span>Personalized improvement recommendations</span>
                     </li>
                   </ul>
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      navigate("/upgrade");
+                    }}
+                  >
                     Upgrade to Pro
                   </Button>
                 </CardContent>
@@ -300,6 +385,7 @@ export default function LandingPage() {
 
         {/* FAQ */}
         <section
+          ref={faqRef}
           id="faq"
           className="w-full py-12 md:py-24 lg:py-32 bg-purple-100"
         >
@@ -397,6 +483,9 @@ export default function LandingPage() {
                 <Button
                   type="button"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => {
+                    navigate("/register");
+                  }}
                 >
                   Get Started
                 </Button>
@@ -408,7 +497,9 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-purple-600 text-white">
-          <p className="text-xs">© 2024 NextGen Interviews. All rights reserved.</p>
+          <p className="text-xs">
+            © 2024 NextGen Interviews. All rights reserved.
+          </p>
         </footer>
       </main>
     </div>
