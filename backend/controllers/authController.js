@@ -236,6 +236,20 @@ exports.resendVerificationEmail = async (req, res) => {
   }
 };
 
+exports.validateToken = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized, please log in" });
+    }
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ message: "Token is valid" });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
 // Protected Route
 exports.getUserDetails = async (req, res) => {
   try {

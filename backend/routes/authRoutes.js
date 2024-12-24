@@ -8,6 +8,7 @@ router.post("/login", authController.login);
 router.post("/logout", authController.logout);
 router.get("/user", authController.getUserDetails);
 router.get("/verify-email", authController.verifyEmail);
+router.get("/validate-token", authController.validateToken);
 router.get(
   "/resend-verification-email",
   authController.resendVerificationEmail
