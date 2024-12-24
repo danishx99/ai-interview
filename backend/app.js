@@ -19,7 +19,9 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
 //connect to the database using mongoose and an env variable
-mongoose.connect(process.env.MONGODB_URI, {});
+mongoose.connect(process.env.MONGODB_URI, {}).then(() => {
+  console.log("Connected to the database");
+});
 
 //start the server
 const port = process.env.PORT || 5000;

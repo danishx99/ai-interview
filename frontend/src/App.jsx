@@ -3,6 +3,8 @@ import LandingPage from "./pages/Landing";
 import RegisterPage from "./pages/Register";
 import LoginPage from "./pages/Login";
 import Verification from "./pages/Verification";
+import EmailVerificationHandler from "./pages/VerificationHandler";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   return (
@@ -12,7 +14,8 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<Verification />} />
         <Route path="/login" element={<LoginPage />} />
-        {/* Add more routes here */}
+        <Route path="/verify-email" element={<EmailVerificationHandler />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );

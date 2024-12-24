@@ -52,7 +52,7 @@ exports.register = async (req, res) => {
     );
 
     // Construct verification URL
-    const verificationUrl = `${process.env.DOMAIN_NAME}/api/auth/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.DOMAIN_NAME}/verify-email?token=${verificationToken}`;
 
     // Send verification email
     const transporter = nodemailer.createTransport({
@@ -190,7 +190,7 @@ exports.resendVerificationEmail = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const verificationUrl = `${process.env.DOMAIN_NAME}/api/auth/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.DOMAIN_NAME}/verify-email?token=${verificationToken}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
