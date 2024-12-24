@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  interviewsLeft: {
+    type: Number,
+    default: 2,
+  },
 });
 
 const User = mongoose.model("User", userSchema);

@@ -92,7 +92,7 @@ export default function RegisterPage() {
         }
       );
       // redirect to main page if response is 201
-      if (response.status === 201) navigate("/dashboard");
+      if (response.status === 201) navigate("/verify");
     } catch (error) {
       // Handle errors
       if (error.response) {
@@ -247,7 +247,7 @@ export default function RegisterPage() {
           <p className="text-xs text-center text-gray-700 w-full ">
             Already have an account?{""}
             <button
-              className="ml-2 underline text-purple-600 hover:text-purple-800"
+              className="ml-2 hover:underline text-purple-600 hover:text-purple-800"
               onClick={() => navigate("/login")}
             >
               Login

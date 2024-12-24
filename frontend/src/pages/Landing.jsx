@@ -149,7 +149,7 @@ export default function LandingPage() {
                     variant="outline"
                     className="border-purple-600 text-purple-600 hover:bg-purple-100"
                     onClick={() => {
-                      navigate("/#features");
+                      scrollToSection(featuresRef);
                     }}
                   >
                     Learn More

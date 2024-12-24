@@ -159,6 +159,12 @@ export default function LoginPage() {
               ""
             )}
           </Button>
+          <div className="flex justify-end">
+            <button className="text-xs ml-2 text-right text-purple-600 hover:text-purple-800 hover:underline">
+              Forgot your password?
+            </button>
+          </div>
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-gray-300" />
@@ -192,7 +198,7 @@ export default function LoginPage() {
           <p className="text-xs text-center text-gray-700 w-full ">
             Don't have an account?{""}
             <button
-              className="ml-2 underline text-purple-600 hover:text-purple-800"
+              className="ml-2 hover:underline text-purple-600 hover:text-purple-800"
               onClick={() => navigate("/register")}
             >
               Register
