@@ -160,7 +160,10 @@ export default function LoginPage() {
             )}
           </Button>
           <div className="flex justify-end">
-            <button className="text-xs ml-2 text-right text-purple-600 hover:text-purple-800 hover:underline">
+            <button
+              onClick={() => navigate("/forgot-password")}
+              className="text-xs ml-2 text-right text-purple-600 hover:text-purple-800 hover:underline"
+            >
               Forgot your password?
             </button>
           </div>

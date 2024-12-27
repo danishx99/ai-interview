@@ -250,6 +250,131 @@ exports.validateToken = async (req, res) => {
   }
 };
 
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const resetUrl = `${process.env.DOMAIN_NAME}/reset-password?token=${token}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "NextGen Interviews: Password Reset Request",
+      html: `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+    <div style="text-align: center;">
+      <img src="https://i.ibb.co/YWg2FLG/mini-logo-purple.png" alt="NextGen Interviews" style="max-width: 100px; margin-bottom: 10px;" />
+    </div>
+    <p>Dear user,</p>
+    <p>We received a request to reset the password for your account with <strong>NextGen Interviews</strong>. To reset your password, please click the button below:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${resetUrl}" style="background-color: #007bff; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+    </div>
+    <p>If the button above doesn't work, you can copy and paste the following link into your web browser:</p>
+    <p><a href="${resetUrl}">${resetUrl}</a></p>
+    <p>If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+    <p>Best regards,</p>
+    <p>The NextGen Interviews Team</p>
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 40px 0;" />
+    <p style="font-size: 12px; color: #888888; text-align: center;">
+      Need help? Contact us at <a href="mailto:saleemdf99@gmail.com">saleemdf99@gmail.com</a><br />
+      © ${new Date().getFullYear()} NextGen Interviews. All rights reserved.<br />
+    </p>
+  </div>
+`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Verification email resent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err });
+  }
+};
+
+exports.verifyToken = async (req, res) => {
+  try {
+    const token = req.query.token;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
+    }
+
+    // Verify the token
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ message: "Token is valid" });
+  } catch (err) {
+    console.error("Token verification error:", err.message);
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Token has expired. Please request a new reset link",
+      });
+    } else if (err.name === "JsonWebTokenError") {
+      return res
+        .status(401)
+        .json({ message: "Invalid token. Please request a new reset link" });
+    }
+
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+
+  try {
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the new password is the same as the old password
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "New password cannot be the same as the old password",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error("Error resetting password:", err.message);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 // Protected Route
 exports.getUserDetails = async (req, res) => {
   try {
@@ -261,7 +386,6 @@ exports.getUserDetails = async (req, res) => {
     const user = await User.findById(decoded.userId);
     res.status(200).json({ user: user });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };
