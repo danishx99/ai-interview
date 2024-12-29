@@ -16,6 +16,8 @@ router.get(
   "/resend-verification-email",
   authController.resendVerificationEmail
 );
+router.get("/google", authController.googleAuth);
+router.get("/google/callback", authController.googleAuthCallback);
 router.get("/delete", authController.deleteAllUsers);
 
 module.exports = router;

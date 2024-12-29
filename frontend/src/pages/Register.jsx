@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +42,7 @@ export default function RegisterPage() {
     console.log("Registering...");
 
     // Reset previous alerts
-    setAlert({ message: "", severity: "" });
+    //setAlert({ message: "", severity: "" });
 
     // Check all fields are filled
     if (!email || !password || !confirmPassword) {
@@ -122,6 +122,19 @@ export default function RegisterPage() {
       setLoading(false);
     }
   }
+
+  //error during Google OAuth
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get("error");
+    if (error) {
+      setAlert({
+        message:
+          "An error occurred during Google authentication. Please try again later.",
+        severity: "error",
+      });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">
@@ -224,7 +237,11 @@ export default function RegisterPage() {
               </span>
             </div>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => (window.location.href = "/api/auth/google")}
+          >
             <svg
               className="mr-2 h-4 w-4"
               aria-hidden="true"

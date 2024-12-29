@@ -178,7 +178,11 @@ export default function LoginPage() {
               </span>
             </div>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => (window.location.href = "/api/auth/google")}
+          >
             <svg
               className="mr-2 h-4 w-4"
               aria-hidden="true"

@@ -2,6 +2,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const session = require("express-session")
 
 //generate a new express app
 const app = express();
@@ -10,8 +12,16 @@ const app = express();
 require("dotenv").config();
 
 //middleware
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 //import routes
 const authRoutes = require("./routes/authRoutes");

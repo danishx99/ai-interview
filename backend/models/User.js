@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false,
   },
   premium: {
     type: Boolean,
@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
   interviewsLeft: {
     type: Number,
     default: 2,
+  },
+  googleId: {
+    type: String, // Google ID to uniquely identify the user
+    required: false,
   },
 });
 

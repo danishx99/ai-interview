@@ -3,6 +3,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const axios = require("axios");
 require("dotenv").config();
 
 // Register a new user
@@ -375,6 +376,131 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+exports.googleAuth = async (req, res) => {
+  req.session.referer =
+    req.get("Referer") || `${process.env.DOMAIN_NAME}/login`; // default to login page
+
+  const redirectUri = "https://accounts.google.com/o/oauth2/v2/auth";
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: `${process.env.DOMAIN_NAME}/api/auth/google/callback`,
+    response_type: "code",
+    scope: "openid email profile",
+    access_type: "offline",
+    prompt: "consent",
+  });
+  res.redirect(`${redirectUri}?${params.toString()}`);
+};
+
+exports.googleAuthCallback = async (req, res) => {
+  const code = req.query.code;
+
+  if (!code) {
+    const redirectUrl =
+      req.session.referer || `${process.env.DOMAIN_NAME}/login`;
+    return res.redirect(`${redirectUrl}?error=authorization-code-missing`);
+  }
+
+  try {
+    // Exchange code for tokens
+    const { data } = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      null,
+      {
+        params: {
+          client_id: process.env.GOOGLE_CLIENT_ID,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET,
+          redirect_uri: `${process.env.DOMAIN_NAME}/api/auth/google/callback`,
+          grant_type: "authorization_code",
+          code,
+        },
+      }
+    );
+
+    const { id_token, access_token } = data;
+
+    // Decode the ID token to get user information
+    const userInfo = jwt.decode(id_token);
+
+    // Check if user exists in your database
+    let user = await findOrCreateUser(userInfo);
+
+    // Generate your own JWT for session management
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "12h",
+    });
+
+    // Set the token in a cookie
+    res.cookie("token", token, { httpOnly: true, maxAge: 12 * 60 * 60 * 1000 });
+
+    // Redirect to the frontend
+    res.redirect(`${process.env.DOMAIN_NAME}/dashboard`);
+  } catch (error) {
+    console.error("Error during Google authentication", error);
+    const redirectUrl =
+      req.session.referer || `${process.env.DOMAIN_NAME}/login`;
+    res.redirect(`${redirectUrl}?error=google-auth-error`);
+  }
+};
+
+async function findOrCreateUser(userInfo) {
+  let user = await User.findOne({ email: userInfo.email });
+
+  if (!user) {
+    user = await User.create({
+      email: userInfo.email,
+      googleId: userInfo.sub,
+    });
+
+    // Send a welcome email to the user
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userInfo.email,
+      subject: "Welcome to NextGen Interviews",
+      html: `
+   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+  <div style="text-align: center;">
+    <img src="https://i.ibb.co/YWg2FLG/mini-logo-purple.png" alt="NextGen Interviews" style="max-width: 100px; margin-bottom: 10px;" />
+  </div>
+  <h2 style="text-align: center; color: #4CAF50;">Welcome to NextGen Interviews!</h2>
+  <p>Dear user,</p>
+  <p>Thank you for registering with <strong>NextGen Interviews</strong>! We're excited to have you on board.</p>
+  <p>We're here to help you get ready for your next big interview. Stay tuned for upcoming features, tips, and more!</p>
+  <p>If you have any questions, feel free to reach out to our support team.</p>
+  <p>We look forward to helping you achieve your interview goals!</p>
+  <p>Best regards,</p>
+  <p>The NextGen Interviews Team</p>
+  <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 40px 0;" />
+  <p style="font-size: 12px; color: #888888; text-align: center;">
+    Need help? Contact us at <a href="mailto:saleemdf99@gmail.com">saleemdf99@gmail.com</a><br />
+    © ${new Date().getFullYear()} NextGen Interviews. All rights reserved.<br />
+  </p>
+</div>
+
+  `,
+    };
+
+    await transporter.sendMail(mailOptions);
+  }
+
+  //set verified to true, and set google id
+  user.verified = true;
+  user.googleId = userInfo.sub;
+
+  await user.save();
+
+  return user;
+}
+
 // Protected Route
 exports.getUserDetails = async (req, res) => {
   try {
